@@ -16,3 +16,7 @@ markov-music
 *.wav
 
 markov-music
+
+.DS_Store
+
+audiosamples/.DS_Store
