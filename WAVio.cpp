@@ -17,21 +17,31 @@ std::vector<int> *readSamplesFromWAV(const char *fname) {
         throw;
     }
 
-    float *input = (float *)malloc(sizeof(float) * fileInfo.channels * SAMPLES);
+    int *input = (int *)malloc(sizeof(int) * fileInfo.channels * SAMPLES);
     int samplesRead = 0;
-    while ((samplesRead = sf_readf_float(fr, input, SAMPLES)) != 0) {
+    bool soundStarted = false;
+
+    while ((samplesRead = sf_readf_int(fr, input, SAMPLES)) != 0) {
         for (int i = 0; i < samplesRead; i++) {
             if (fileInfo.channels == 1) {
                 samples->push_back(input[i]);
             } else if (fileInfo.channels == 2) {
                 // push back an average of left/right channels (ie mono)
-                samples->push_back((input[2*i] + input[2*i+1]) / 2.0);
+                int sampleToAdd = (int)((input[2*i] + input[2*i+1]) / 2.0);
+                if (sampleToAdd == 0 && soundStarted || sampleToAdd != 0) {
+                    soundStarted = true;
+                    samples->push_back(sampleToAdd);
+                }
             } else {
                 printf("File has more than 2 audio channels\n");
                 throw;
             }
         }
     }
+
+    /*for (size_t i = 0; i < 100; i++) {
+        printf("%i,", samples->at(i));
+    }*/
 
     free(input);
     sf_close(fr);
