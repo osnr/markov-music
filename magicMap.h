@@ -8,10 +8,11 @@ using namespace std;
 class MagicMap {
     vector< vector<int> > keys;
     vector< vector<int> > values;
-    int tolerance;
+    float tolerance;
+    float calculateDeviation(vector<int> &a, vector<int> &b);
 
 public:
-    MagicMap(int atolerance) {
+    MagicMap(float atolerance) {
         tolerance = atolerance;
     };
     ~MagicMap() {};
