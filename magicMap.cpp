@@ -175,7 +175,9 @@ bool MagicMap::ReadFromFile(const char *dir, const char *name) {
             hash.back().push_back(v);
         } else if (strstr(line, "3 ") == line) {
             slice k;
-            k.value = atoi(line + strlen("3 "));
+            char *endptr = NULL;
+            k.value = strtod(line + strlen("3 "), &endptr);
+            k.beatFalloff = strtod(endptr, NULL);
             hash.back().back().push_back(k);
         } else if (strcmp(line, "4")==0) {
             vector<vector<slice > > v;
@@ -184,9 +186,11 @@ bool MagicMap::ReadFromFile(const char *dir, const char *name) {
             vector<slice> v;
             hashValues.back().push_back(v);
         } else if (strstr(line, "6 ") == line) {
-            slice s;
-            s.value = atoi(line + strlen("6 "));
-            hashValues.back().back().push_back(s);
+            slice k;
+            char *endptr = NULL;
+            k.value = strtod(line + strlen("6 "), &endptr);
+            k.beatFalloff = strtod(endptr, NULL);
+            hashValues.back().back().push_back(k);
         }
     }
     
@@ -214,7 +218,7 @@ void MagicMap::SaveToFile(const char *dir, const char *name) {
         for (size_t j = 0; j < hash[i].size(); j++) {
             fprintf(fw, "2\n");
             for (size_t k = 0; k < hash[i][j].size(); k++) {
-                fprintf(fw, "3 %i\n", hash[i][j][k].value);
+                fprintf(fw, "3 %i %i\n", hash[i][j][k].value, hash[i][j][k].beatFalloff);
             }
         }
     }
@@ -225,7 +229,7 @@ void MagicMap::SaveToFile(const char *dir, const char *name) {
             fprintf(fw, "5\n");
             for (size_t k = 0; k < hashValues[i][j].size(); k++) {
                 /////TODO: Save the rest of the elements of slice
-                fprintf(fw, "6 %i\n", hashValues[i][j][k].value);
+                fprintf(fw, "6 %i %i\n", hashValues[i][j][k].value, hashValues[i][j][k].beatFalloff);
             }
         }
     }

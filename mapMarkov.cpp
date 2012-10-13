@@ -119,7 +119,7 @@ MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzz
         int beatPositionIndex = 0;
         int beatBumpSize = 0;
         for (int i = 0; i < inputSize; i++) {
-            if (beatPosition[beatPositionIndex] == i) {
+            if (beatPosition.size() > 0 && beatPosition[beatPositionIndex] == i) {
                 //printf("Writing over a beat @%i\n",i);
                 beatPositionIndex++;
                 beatBumpSize = beatLengthAvgInt;
@@ -137,7 +137,9 @@ MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzz
                 }
                 fflush(stdout);
             }
-            input.at(i).beatFalloff = beatBumpSize;
+            if (beatPosition.size()) {
+                input.at(i).beatFalloff = beatBumpSize;
+            }
             if (history.size() >= order) {
                 model[history].push_back(input.at(i));
                 
