@@ -6,7 +6,7 @@
 #define SAMPLE_RATE 44100 // for output WAV
 
 
-void readSamplesFromWAV(std::vector<int> &samples, const char *fname) {
+void readSamplesFromWAV(std::vector<slice> &samples, const char *fname) {
     SF_INFO fileInfo;
     fileInfo.format = 0;
     SNDFILE *fr = sf_open(fname, SFM_READ, &fileInfo);
@@ -22,13 +22,16 @@ void readSamplesFromWAV(std::vector<int> &samples, const char *fname) {
     while ((samplesRead = sf_readf_int(fr, input, SAMPLES)) != 0) {
         for (int i = 0; i < samplesRead; i++) {
             if (fileInfo.channels == 1) {
-                samples.push_back(input[i]);
+                slice s;
+                s.value = input[i];
+                samples.push_back(s);
             } else if (fileInfo.channels == 2) {
                 // push back left channel only (averaging both loses precision)
-                int sampleToAdd = input[2*i];
-                if (sampleToAdd == 0 && soundStarted || sampleToAdd != 0) {
+                slice s;
+                s.value = input[2*i];
+                if (s.value == 0 && soundStarted || s.value != 0) {
                     soundStarted = true;
-                    samples.push_back(sampleToAdd);
+                    samples.push_back(s);
                 }
             } else {
                 printf("File has more than 2 audio channels\n");

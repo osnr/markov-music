@@ -1,6 +1,7 @@
 #include "WAVio.h"
 #include "markov.h"
 #include "mapMarkov.h"
+#include "magicMap.h"
 
 #include <iostream>
 
@@ -12,13 +13,20 @@ int main(int argc, char **argv) {
         printf("Usage: %s WAV1 ... WAVN\n\tWAVX are WAV files to read from.\n", argv[0]);
         return 1;
     } else {
-        vector<vector<int> > inputs;
-        for (int i = 1; i < argc; i++) {
-            vector<int> v;
+        vector<vector<slice> > inputs;
+        int inSize = atoi(argv[1]);
+        int outSize = atoi(argv[2]);
+        int fuzzFactor = atoi(argv[3]);
+        int order = atoi(argv[4]);
+        int unified = atoi(argv[5]);
+        cout << argc << endl;
+        for (int i = 6; i < argc; i++) {
+            vector<slice> v;
             readSamplesFromWAV(v, argv[i]);
             inputs.push_back(v);
         }
+
         //order, input file size, output file size, fuzz factor, unify inputs into single graph
-        markovGeneration(inputs,"out.wav",4,250000,10000000,500000,22000,0,false);
+        markovGeneration(inputs,"out.wav",order,inSize,outSize,fuzzFactor,22000,0,unified==1);
     }
 }

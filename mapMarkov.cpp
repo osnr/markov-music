@@ -52,25 +52,96 @@ void printResults(vector<int> *output) {
     printf("\n");
 }
 
-MagicMap buildModel(vector<int> input, int order, int inputSizeLimit, int fuzzMultiple, int index) {
-    MagicMap model(0,fuzzMultiple);
-    vector<int> history;
-
+MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzzMultiple, int index) {
+    
     int inputSize = input.size();
     if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
 
-    if (!model.ReadFromFile(MODEL_FILE, index)) {
+    //Do beat calculations
+    vector<double> beathistory;
+    int onBeat = 0;
+    int lastBeatLocation = 44100/1024;
+    vector<int> beatLength;
+    vector<int> beatPosition;
+    for (int s = 0; s < inputSize/1024; s++) {
+        double sampleEnergy = 0;
+        for (int i = s*1024; i < (s+1)*1024; i++) {
+            sampleEnergy += (double)input[i].value * (double)input[i].value;
+        }
+        beathistory.push_back(sampleEnergy);
+        //if we have a full history buffer
+        if (beathistory.size() > 44100/1024) {
+            double avgLocalEnergy = 0;
+            for (int i = 0; i < beathistory.size(); i++) {
+                avgLocalEnergy += beathistory[i];
+            }
+            avgLocalEnergy /= beathistory.size();
+            if (sampleEnergy > avgLocalEnergy * 1.3) {
+                //We found a beat
+                onBeat++;
+            }
+            else if (onBeat > 0) {
+                if (onBeat > 1) {
+                    int length = s - lastBeatLocation - onBeat;
+                    //if (length > 4) {
+                        //printf("BEAT OF SIZE %i, %i since last, @%i\n",onBeat,length,(s-onBeat)*1024);
+                        lastBeatLocation = s - onBeat;
+                        beatLength.push_back(length);
+                        beatPosition.push_back((s-onBeat)*1024);
+                    //}
+                }
+                onBeat = 0;
+            }
+            /*printf("BEAT SCORE AT 1024*%i: ",s);
+            for (int i = 0; i < onBeat; i++) {
+                printf(" - ");
+            }
+            printf("*\n");
+            for (int i = s*1024; i < (s+1)*1024; i++) {
+                
+            }*/
+            beathistory.erase(beathistory.begin());
+        }
+    }
+    double beatLengthAvg = 0;
+    for (int i = 0; i < beatLength.size(); i++) {
+        beatLengthAvg += beatLength[i];
+    }
+    beatLengthAvg /= beatLength.size();
+    int beatLengthAvgInt = beatLengthAvg*1024;
+    printf("The Average BEATLENGTH is %i\n",beatLengthAvgInt);
+
+    MagicMap model(0,fuzzMultiple);
+    vector<slice> history;
+
+
+    //if (!model.ReadFromFile(MODEL_FILE, index)) {
         cout << "Building Model of size " << inputSize << ": " << endl;
         //Build the model
+        int beatPositionIndex = 0;
+        int beatBumpSize = 0;
         for (int i = 0; i < inputSize; i++) {
+            if (beatPosition[beatPositionIndex] == i) {
+                //printf("Writing over a beat @%i\n",i);
+                beatPositionIndex++;
+                beatBumpSize = beatLengthAvgInt;
+            }
+            beatBumpSize--;
             if (i % 1000 == 0) {
-                printf("\r %i done (%i percent)",i,(int)(((double)i/(double)inputSize)*100));
+                printf("\r %i done (%i percent) beat: ",i,(int)(((double)i/(double)inputSize)*100));
+                for (int i = 0; i < beatLengthAvgInt / 500; i++) {
+                    if (i < beatBumpSize / 500) {
+                        printf("+");
+                    }
+                    else {
+                        printf("-");
+                    }
+                }
                 fflush(stdout);
             }
+            input.at(i).beatFalloff = beatBumpSize;
             if (history.size() >= order) {
                 model[history].push_back(input.at(i));
-                //Check for the seed value
-                //TODO: This is slightly slower than the most frequent at the end, b/c of redundancies
                 
                 //Shift the history frame over 1 element
                 history.erase(history.begin());
@@ -79,11 +150,11 @@ MagicMap buildModel(vector<int> input, int order, int inputSizeLimit, int fuzzMu
             history.push_back(input.at(i));
         }
         model.SaveToFile(MODEL_FILE, index);
-    }
+    //}
     return model;
 }
 
-void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize, int fuzzMultiple, int beatLength, int beatModifierStrength, bool unify) {
+void markovGeneration(vector< vector<slice> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize, int fuzzMultiple, int beatLength, int beatModifierStrength, bool unify) {
 
     vector<MagicMap> models;
     int modelIndex = 0;
@@ -98,7 +169,7 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
         model = models[modelIndex];
     }
     else {
-        vector<int> unified;
+        vector<slice> unified;
         for (int i = 0; i < inputs.size(); i++) {
             int inputSize = inputs[i].size();
             if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
@@ -109,11 +180,11 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
         model = buildModel(unified,order,unified.size(),fuzzMultiple,0);
     }
     //Get starting seed
-    vector<int> startFlag = model.getLargestKey();
-    vector<int> seed = startFlag;
+    vector<slice> startFlag = model.getLargestKey();
+    vector<slice> seed = startFlag;
     printf("\nStarting with set: ");
     for (int i = 0; i < seed.size(); i++) {
-        printf("%i,",seed[i]);
+        printf("%i,",seed[i].value);
     }
 
     //Seed the random number generator
@@ -137,14 +208,14 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
             fflush(stdout);
         }
         //Get a random int from the options to follow this history set
-        int addInt = 0;
-        vector<int> *possibleFollowers = &model.get(seed,order);
+        slice addSlice;
+        vector<slice> *possibleFollowers = &model.get(seed,order);
         if (possibleFollowers->size() > 0) {
-            addInt = possibleFollowers->at(rand() % possibleFollowers->size());
+            addSlice = possibleFollowers->at(rand() % possibleFollowers->size());
             avgSize += possibleFollowers->size();
             nonZeroVectors++;
             //Add our result
-            seed.push_back(addInt);
+            seed.push_back(addSlice);
         }
         else {
             //Start over if we hit a loop
@@ -174,13 +245,19 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
         int beatModifier = metronome;
         if (metronome > beatLength) metronome = beatLength - metronome;
         if (metronome > beatLength * 2) metronome = 0;
-        seed[i] += beatModifier;
+        seed[i].value += beatModifier;
     }
     printf("DONE POST PROCESSING\n");
     avgSize /= (double)nonZeroVectors;
     printf("\n avg vec size %f, non-zero vectors %i, zero-vectors %i",avgSize,nonZeroVectors,zeroVectors);
     cout << endl;
 
-    writeSamplesToWAV(&seed,outFile);
+    vector<int> seedJustInts;
+
+    for (int i = 0; i < outputSize; i++) {
+        seedJustInts.push_back(seed[i].value);
+    }
+
+    writeSamplesToWAV(&seedJustInts,outFile);
 }
 

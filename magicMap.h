@@ -5,12 +5,17 @@
 
 using namespace std;
 
+typedef struct slice {
+    int value;
+    int beatFalloff;
+} slice;
+
 class MagicMap {
-    vector<vector<vector<int> > > hash;
-    vector<vector<vector<int> > > hashValues;
+    vector<vector<vector<slice> > > hash;
+    vector<vector<vector<slice> > > hashValues;
     float tolerance;
     int fuzzMultiple;
-    bool calculateDeviation(vector<int> &a, vector<int> &b);
+    bool calculateDeviation(vector<slice> &a, vector<slice> &b);
 
 public:
     MagicMap(float atolerance,int fuzz) {
@@ -18,25 +23,25 @@ public:
         tolerance = atolerance;
         hash.reserve(10000);
         for (int i = 0; i < 10000; i++) {
-            vector<vector<int> > keys;
+            vector<vector<slice> > keys;
             keys.reserve(1000);
             hash.push_back(keys);
         }
         hashValues.reserve(10000);
         for (int i = 0; i < 10000; i++) {
-            vector<vector<int> > values;
+            vector<vector<slice> > values;
             values.reserve(1000);
             hashValues.push_back(values);
         }
     };
     ~MagicMap() {};
-    vector<int> &operator[] (vector<int> &key);
-    vector<int> &get(vector<int> &seed, int order);
-    vector<int> getLargestKey();
-    double calculateScore(vector<int> &a, vector<int> &b);
-    vector<int> getMostSimilarKey(vector<int> &check, int order);
+    vector<slice> &operator[] (vector<slice> &key);
+    vector<slice> &get(vector<slice> &seed, int order);
+    vector<slice> getLargestKey();
+    double calculateScore(vector<slice> &a, vector<slice> &b);
+    vector<slice> getMostSimilarKey(vector<slice> &check, int order);
     void debugModel();
-    int inline vectorHashNumber (vector<int> &key);
+    int inline vectorHashNumber (vector<slice> &key);
 
     bool ReadFromFile(const char *fname, int i);
     void SaveToFile(const char *fname, int i);

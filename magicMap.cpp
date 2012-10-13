@@ -1,48 +1,49 @@
 #include "magicMap.h"
 
-int inline MagicMap::vectorHashNumber (vector<int> &key) {
+int inline MagicMap::vectorHashNumber (vector<slice> &key) {
     int hashNumber = 1;
     for (size_t i = 0; i < key.size(); i++) {
-        hashNumber += key[i];
-        hashNumber *= key[i];
+        hashNumber += key[i].value;
+        hashNumber *= key[i].value;
+        hashNumber *= key[i].beatFalloff;
     }
     return hashNumber % hash.size();
 }
 
-void fuzzVector(vector<int> &key,int fuzzMultiple) {
+void fuzzVector(vector<slice> &key,int fuzzMultiple) {
     for (size_t i = 0; i < key.size(); i++) {
-        key[i] = ((int)((double)key[i]/fuzzMultiple))*fuzzMultiple;
+        key[i].value = ((int)((double)key[i].value/fuzzMultiple))*fuzzMultiple;
     }
 }
 
-vector<int> &MagicMap::operator[] (vector<int> &key) {
+vector<slice> &MagicMap::operator[] (vector<slice> &key) {
     fuzzVector(key,fuzzMultiple);
     int hashNumber = vectorHashNumber(key);
-    vector<vector<int> > *keys = &hash[hashNumber];
-    vector<vector<int> > *values = &hashValues[hashNumber];
+    vector<vector<slice> > *keys = &hash[hashNumber];
+    vector<vector<slice> > *values = &hashValues[hashNumber];
     for (size_t i = 0; i < keys->size(); i++) {
         if (calculateDeviation(keys->at(i), key))
             return values->at(i);
     }
 
     // If we got here, nothing was found, add key to keys
-    vector<int> v;
+    vector<slice> v;
     v.reserve(100);
     keys->push_back(key);
     values->push_back(v);
     return values->back();
 }
 
-vector<int> &MagicMap::get(vector<int> &seed, int order) {
-    vector<int> key;
+vector<slice> &MagicMap::get(vector<slice> &seed, int order) {
+    vector<slice> key;
     key.reserve(order);
     for (size_t i = seed.size()-order; i < seed.size(); i++) {
         key.push_back(seed[i]);
     }
     fuzzVector(key,fuzzMultiple);
     int hashNumber = vectorHashNumber(key);
-    vector<vector<int> > *keys = &hash[hashNumber];
-    vector<vector<int> > *values = &hashValues[hashNumber];
+    vector<vector<slice> > *keys = &hash[hashNumber];
+    vector<vector<slice> > *values = &hashValues[hashNumber];
     //printf("Bucket Size %i\n",keys->size());
     for (size_t i = 0; i < keys->size(); i++) {
         if (calculateDeviation(keys->at(i), key))
@@ -50,36 +51,36 @@ vector<int> &MagicMap::get(vector<int> &seed, int order) {
     }
 
 
-    vector<int> v;
+    vector<slice> v;
     return v;
 }
 
 void MagicMap::debugModel() {
     for (size_t h = 0; h < hash.size(); h++) {
-        vector<vector<int> > keys = hash[h];
-        vector<vector<int> > values = hashValues[h];
+        vector<vector<slice> > keys = hash[h];
+        vector<vector<slice> > values = hashValues[h];
         for (size_t i = 0; i < keys.size(); i++) {
             printf("Key: ");
             for (size_t k = 0; k < keys[i].size(); k++) {
-                printf("%i",keys[i][k]);
+                printf("%i",keys[i][k].value);
             }
             printf(": ");
             for (size_t n = 0; n < values[i].size(); n++) {
-                printf("%i,",values[i][n]);
+                printf("%i,",values[i][n].value);
             }
             printf("\n");
         }
     }
 }
 
-vector<int> MagicMap::getLargestKey() {
-    vector<int> result;
+vector<slice> MagicMap::getLargestKey() {
+    vector<slice> result;
     int largestResult = 0;
     int largestResultHash = 0;
     int largestResultIndex = 0;
     for (size_t h = 0; h < hash.size(); h++) {
-        vector<vector<int> > keys = hash[h];
-        vector<vector<int> > values = hashValues[h];
+        vector<vector<slice> > keys = hash[h];
+        vector<vector<slice> > values = hashValues[h];
         for (size_t i = 0; i < keys.size(); i++) {
             int valueSize = values[i].size();
             if (valueSize > largestResult) {
@@ -92,16 +93,16 @@ vector<int> MagicMap::getLargestKey() {
     return hash[largestResultHash][largestResultIndex];
 }
 
-double MagicMap::calculateScore(vector<int> &a, vector<int> &b) {
+double MagicMap::calculateScore(vector<slice> &a, vector<slice> &b) {
     double avgScore = 0;
     for (size_t i = 0; i < a.size(); i++) {
-        avgScore += abs(a[i]-b[i]);
+        avgScore += abs(a[i].value-b[i].value);
     }
     return avgScore / a.size();
 }
 
-vector<int> MagicMap::getMostSimilarKey(vector<int> &check, int order) {
-    vector<int> key;
+vector<slice> MagicMap::getMostSimilarKey(vector<slice> &check, int order) {
+    vector<slice> key;
     for (int i = check.size() - order; i < check.size(); i++) {
         key.push_back(check[i]);
     }
@@ -109,10 +110,9 @@ vector<int> MagicMap::getMostSimilarKey(vector<int> &check, int order) {
     int closestResultHash = 0;
     int closestResultIndex = 0;
     for (size_t h = 0; h < hash.size(); h++) {
-        vector<vector<int> > keys = hash[h];
-        vector<vector<int> > values = hashValues[h];
+        vector<vector<slice> > keys = hash[h];
         for (size_t i = 0; i < keys.size(); i++) {
-            int valueSize = calculateScore(values[i],key);
+            int valueSize = calculateScore(keys[i],key);
             if (valueSize < closestResult) {
                 closestResult = valueSize;
                 closestResultHash = h;
@@ -124,10 +124,12 @@ vector<int> MagicMap::getMostSimilarKey(vector<int> &check, int order) {
 }
 
 
-bool MagicMap::calculateDeviation(vector<int> &a, vector<int> &b) {
+bool MagicMap::calculateDeviation(vector<slice> &a, vector<slice> &b) {
     for (size_t i = 0; i < a.size(); i++) {
         //Special case for zero
-        if (a[i] != b[i]) return false;
+        if (a[i].value != b[i].value) return false;
+        int falloff = a[i].beatFalloff - b[i].beatFalloff;
+        if (falloff > 0 || falloff < -1000) return false;
     }
     return true;
 
@@ -151,21 +153,25 @@ bool MagicMap::ReadFromFile(const char *dir, int i) {
             line[strlen(line)-1] = '\0';
 
         if (strcmp(line, "1")==0) {
-            vector<vector<int > > v;
+            vector<vector<slice > > v;
             hash.push_back(v);
         } else if (strcmp(line, "2")==0) {
-            vector<int> v;
+            vector<slice> v;
             hash.back().push_back(v);
         } else if (strstr(line, "3 ") == line) {
-            hash.back().back().push_back(atoi(line + strlen("3 ")));
+            slice k;
+            k.value = atoi(line + strlen("3 "));
+            hash.back().back().push_back(k);
         } else if (strcmp(line, "4")==0) {
-            vector<vector<int > > v;
+            vector<vector<slice > > v;
             hashValues.push_back(v);
         } else if (strcmp(line, "5")==0) {
-            vector<int> v;
+            vector<slice> v;
             hashValues.back().push_back(v);
         } else if (strstr(line, "6 ") == line) {
-            hashValues.back().back().push_back(atoi(line + strlen("6 ")));
+            slice s;
+            s.value = atoi(line + strlen("6 "));
+            hashValues.back().back().push_back(s);
         }
     }
     
@@ -184,14 +190,14 @@ void MagicMap::SaveToFile(const char *dir, int i) {
         throw;
     }
 
-    printf("hash size %i\n", hash.size());
+    printf("\nhash size %i\n", hash.size());
 
     for (size_t i = 0; i < hash.size(); i++) {
         fprintf(fw, "1\n");
         for (size_t j = 0; j < hash[i].size(); j++) {
             fprintf(fw, "2\n");
             for (size_t k = 0; k < hash[i][j].size(); k++) {
-                fprintf(fw, "3 %i\n", hash[i][j][k]);
+                fprintf(fw, "3 %i\n", hash[i][j][k].value);
             }
         }
     }
@@ -201,7 +207,8 @@ void MagicMap::SaveToFile(const char *dir, int i) {
         for (size_t j = 0; j < hashValues[i].size(); j++) {
             fprintf(fw, "5\n");
             for (size_t k = 0; k < hashValues[i][j].size(); k++) {
-                fprintf(fw, "6 %i\n", hashValues[i][j][k]);
+                /////TODO: Save the rest of the elements of slice
+                fprintf(fw, "6 %i\n", hashValues[i][j][k].value);
             }
         }
     }
