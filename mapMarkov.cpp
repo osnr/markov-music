@@ -6,6 +6,10 @@
 #include <stdio.h>
 #include <time.h>
 
+
+#define MODEL_FILE "magicModel.txt"
+
+
 using namespace std;
 
 vector<int> *getTestVector() {
@@ -48,30 +52,34 @@ void printResults(vector<int> *output) {
     printf("\n");
 }
 
-void markovGeneration(vector<int> &input, char* outFile, int order, int inputSizeLimit, int outputSize) {
+void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize) {
+    vector<int> input = inputs[0];
     MagicMap model(0);
     vector<int> history;
 
     int inputSize = input.size();
     if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
 
-    cout << "Building Model of size " << inputSize << ": " << endl;
-    //Build the model
-    for (int i = 0; i < inputSize; i++) {
-        if (i % 1000 == 0) {
-            printf("\r %i done (%i percent)",i,(int)(((double)i/(double)inputSize)*100));
-            fflush(stdout);
+    if (!model.ReadFromFile(MODEL_FILE)) {
+        cout << "Building Model of size " << inputSize << ": " << endl;
+        //Build the model
+        for (int i = 0; i < inputSize; i++) {
+            if (i % 1000 == 0) {
+                printf("\r %i done (%i percent)",i,(int)(((double)i/(double)inputSize)*100));
+                fflush(stdout);
+            }
+            if (history.size() >= order) {
+                model[history].push_back(input.at(i));
+                //Check for the seed value
+                //TODO: This is slightly slower than the most frequent at the end, b/c of redundancies
+                
+                //Shift the history frame over 1 element
+                history.erase(history.begin());
+            }
+            //Add to the history
+            history.push_back(input.at(i));
         }
-        if (history.size() >= order) {
-            model[history].push_back(input.at(i));
-            //Check for the seed value
-            //TODO: This is slightly slower than the most frequent at the end, b/c of redundancies
-
-            //Shift the history frame over 1 element
-            history.erase(history.begin());
-        }
-        //Add to the history
-        history.push_back(input.at(i));
+        model.SaveToFile(MODEL_FILE);
     }
 
 

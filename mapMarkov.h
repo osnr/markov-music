@@ -7,6 +7,6 @@
 
 using namespace std;
 
-void markovGeneration(vector<int> &input, char* outFile, int order, int inputSizeLimit, int outputSize);
+void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize);
 
 #endif

@@ -12,11 +12,13 @@ int main(int argc, char **argv) {
         printf("Usage: %s WAV1 ... WAVN\n\tWAVX are WAV files to read from.\n", argv[0]);
         return 1;
     } else {
-        vector<int> input;
+        vector<vector<int> > inputs;
         for (int i = 1; i < argc; i++) {
-            readSamplesFromWAV(input, argv[i]);
+            vector<int> v;
+            readSamplesFromWAV(v, argv[i]);
+            inputs.push_back(v);
         }
-        markovGeneration(input,"out.wav",4,250000,10000000);
+        markovGeneration(inputs,"out.wav",4,250000,10000000);
     }
 
 }

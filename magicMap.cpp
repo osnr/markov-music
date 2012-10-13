@@ -121,3 +121,13 @@ bool MagicMap::calculateDeviation(vector<int> &a, vector<int> &b) {
     return true;
 
 }
+
+
+bool MagicMap::ReadFromFile(const char *fname) {
+    return false; // TODO
+}
+
+
+void MagicMap::SaveToFile(const char *fname) {
+    return; // TODO
+}

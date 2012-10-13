@@ -33,6 +33,9 @@ public:
     vector<int> getLargestKey();
     void debugModel();
     int inline vectorHashNumber (vector<int> &key);
+
+    bool ReadFromFile(const char *fname);
+    void SaveToFile(const char *fname);
 };
 
 #endif
