@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'Markov Brothers' target in the 'Markov Brothers' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
