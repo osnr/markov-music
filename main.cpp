@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
             vector<slice> v;
             readSamplesFromWAV(v, argv[i]);
             inputs.push_back(v);
+            inputNames.push_back(argv[i]);
         }
 
         //order, input file size, output file size, fuzz factor, unify inputs into single graph

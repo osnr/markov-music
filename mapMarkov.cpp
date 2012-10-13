@@ -52,7 +52,7 @@ void printResults(vector<int> *output) {
     printf("\n");
 }
 
-MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzzMultiple, const char *inputName, int index) {
+MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzzMultiple, const char *inputName) {
     
     int inputSize = input.size();
     if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
@@ -114,8 +114,6 @@ MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzz
     MagicMap model(0,fuzzMultiple);
     vector<slice> history;
 
-
-    //if (!model.ReadFromFile(MODEL_FILE, inputName)) {
         cout << "Building Model of size " << inputSize << ": " << endl;
         //Build the model
         int beatPositionIndex = 0;
@@ -154,7 +152,7 @@ MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzz
     return model;
 }
 
-void markovGeneration(vector< vector<slice> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize, int fuzzMultiple, int beatLength, int beatModifierStrength, bool unify) {
+void markovGeneration(vector< vector<slice> > &inputs, vector<char *> &inputNames, char* outFile, int order, int inputSizeLimit, int outputSize, int fuzzMultiple, int beatLength, int beatModifierStrength, bool unify) {
 
     vector<MagicMap> models;
     int modelIndex = 0;
@@ -163,7 +161,7 @@ void markovGeneration(vector< vector<slice> > &inputs, char* outFile, int order,
 
     if (!unify) {
         for (int i = 0; i < inputs.size(); i++) {
-            models.push_back(buildModel(inputs[i],order,inputSizeLimit,fuzzMultiple,i));
+            models.push_back(buildModel(inputs[i],order,inputSizeLimit,fuzzMultiple,inputNames[i]));
         }
 
         model = models[modelIndex];
@@ -177,7 +175,18 @@ void markovGeneration(vector< vector<slice> > &inputs, char* outFile, int order,
                 unified.push_back(inputs[i][j]);
             }
         }
-        model = buildModel(unified,order,unified.size(),fuzzMultiple,0);
+        int unifiedLen = 0;
+        for (size_t i = 0; i < inputNames.size(); i++) {
+            unifiedLen += strlen(inputNames[i]);
+        }
+        unifiedLen++;
+        char *unifiedStr = (char *)malloc(unifiedLen);
+        unifiedStr[0] = 0;
+        for (size_t i = 0; i < inputNames.size(); i++) {
+            strcat(unifiedStr, inputNames[i]);
+        }
+        model = buildModel(unified,order,unified.size(),fuzzMultiple,unifiedStr);
+        free(unifiedStr);
     }
     //Get starting seed
     vector<slice> startFlag = model.getLargestKey();
