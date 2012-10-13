@@ -1,5 +1,5 @@
 #include "markov.h"
-#include "readWAV.h"
+#include "WAVio.h"
 
 #include <stdlib.h>
 
