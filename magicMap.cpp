@@ -6,9 +6,7 @@ int inline MagicMap::vectorHashNumber (vector<int> &key) {
     int hashNumber = 1;
     for (size_t i = 0; i < key.size(); i++) {
         hashNumber += key[i];
-        if (i % 3 == 0) {
-            hashNumber = (hashNumber << 1);
-        }
+        hashNumber *= key[i];
     }
     return hashNumber % hash.size();
 }
