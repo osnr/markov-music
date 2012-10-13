@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
         for (int i = 1; i < argc; i++) {
             readSamplesFromWAV(input, argv[i]);
         }
-        markovGeneration(input,"out.wav",4,250000,10000000);
+        markovGeneration(input,"out.wav",4,250000,1000000);
     }
 
 }

@@ -76,7 +76,8 @@ void markovGeneration(vector<int> &input, char* outFile, int order, int inputSiz
 
 
     //Get starting seed
-    vector<int> seed = model.getLargestKey();
+    vector<int> startFlag = model.getLargestKey();
+    vector<int> seed = startFlag;
     printf("\nStarting with set: ");
     for (int i = 0; i < seed.size(); i++) {
         printf("%i,",seed[i]);
@@ -108,15 +109,15 @@ void markovGeneration(vector<int> &input, char* outFile, int order, int inputSiz
             addInt = possibleFollowers->at(rand() % possibleFollowers->size());
             avgSize += possibleFollowers->size();
             nonZeroVectors++;
+            //Add our result
+            seed.push_back(addInt);
         }
         else {
-            //Quit flag
-            writeSamplesToWAV(&seed,outFile);
-            exit(0);
+            //Start over if we hit a loop
+            for (int i = 0; i < startFlag.size(); i++) {
+                seed.push_back(startFlag[i]);
+            }
         }
-        //Add it to the result
-        seed.push_back(addInt);
-        //Shift the history frame
     }
     avgSize /= (double)nonZeroVectors;
     printf("\n avg vec size %f, non-zero vectors %i, zero-vectors %i",avgSize,nonZeroVectors,zeroVectors);

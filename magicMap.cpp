@@ -1,6 +1,6 @@
 #include "magicMap.h"
 
-#define FUZZ_MULTIPLE 10000
+#define FUZZ_MULTIPLE 1000000
 
 int inline MagicMap::vectorHashNumber (vector<int> &key) {
     int hashNumber = 1;
