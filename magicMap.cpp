@@ -14,6 +14,20 @@ vector<int> &MagicMap::operator[] (vector<int> &key) {
     return values.back();
 }
 
+vector<int> MagicMap::getLargestKey() {
+    vector<int> result;
+    int largestResult = 0;
+    int largestResultIndex = 0;
+    for (size_t i = 0; i < keys.size(); i++) {
+        int valueSize = values[i].size();
+        if (valueSize > largestResult) {
+            largestResult = valueSize;
+            largestResultIndex = i;
+        }
+    }
+    return keys[largestResultIndex];
+}
+
 
 float MagicMap::calculateDeviation(vector<int> &a, vector<int> &b) {
     if (a.size() != b.size()) {
@@ -24,6 +38,8 @@ float MagicMap::calculateDeviation(vector<int> &a, vector<int> &b) {
     int totalDev = 0;
     for (size_t i = 0; i < a.size(); i++) {
         totalDev += abs(a[i] - b[i]);
+        //Special case for zero
+        if (totalDev > 0) break;
     }
 
     return (float)totalDev / (float)a.size();

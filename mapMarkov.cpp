@@ -41,25 +41,21 @@ vector<int> *getTestVector() {
     return samples;
 }
 
-void markovGeneration(char* inFile, char* outFile, int order, int outputSize) {
+void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit, int outputSize) {
     vector<int> *input = readSamplesFromWAV(inFile);
     //vector<int> *input = getTestVector();
         
     MagicMap model(0);
     vector<int> history;
 
-    //Get starting seed
-    int mostFrequentKeyCount = 0;
-    vector<int> seed;
+    int inputSize = input->size();
+    if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
 
-    cout << "Building Model of size " << input->size() << " (one dot per 1000 inputs): "<<endl;
+    cout << "Building Model of size " << inputSize << ": "<<endl;
     //Build the model
-    for (int i = 0; i < input->size(); i++) {
-        if (i < 100) {
-            cout << input->at(i) << ",";
-        }
+    for (int i = 0; i < inputSize; i++) {
         if (i % 1000 == 0) {
-            cout << ".";
+            printf("\r %i done (%i percent)",i,(int)(((double)i/(double)inputSize)*100));
             fflush(stdout);
         }
         if (history.size() >= order) {
@@ -67,16 +63,20 @@ void markovGeneration(char* inFile, char* outFile, int order, int outputSize) {
             //Check for the seed value
             //TODO: This is slightly slower than the most frequent at the end, b/c of redundancies
 
-            if (model[history].size() > mostFrequentKeyCount) {
+            /*if (model[history].size() > mostFrequentKeyCount) {
                 mostFrequentKeyCount = model[history].size();
                 seed = history;
-            }
+            }*/
             //Shift the history frame over 1 element
             history.erase(history.begin());
         }
         //Add to the history
         history.push_back(input->at(i));
     }
+
+
+    //Get starting seed
+    vector<int> seed = model.getLargestKey();
 
     //free the input memory
     delete input;
@@ -92,13 +92,13 @@ void markovGeneration(char* inFile, char* outFile, int order, int outputSize) {
     //Do the generation
     for (int i = 0; i < outputSize; i++) {
         if (i % 1000 == 0) {
-            cout << ".";
+            printf("\r %i done (%i percent)",i,(int)(((double)i/(double)inputSize)*100));
             fflush(stdout);
         }
         //Get a random int from the options to follow this history set
-        int addInt = model[history][rand() % model[history].size()];
-        if (i < 100) {
-            cout << addInt << ",";
+        int addInt = 0;
+        if (model[history].size() > 0) {
+            addInt = model[history][rand() % model[history].size()];
         }
         //Add it to the result
         seed.push_back(addInt);
