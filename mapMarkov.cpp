@@ -98,7 +98,8 @@ void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit
         //Get a random int from the options to follow this history set
         int addInt = 0;
         if (model[history].size() > 0) {
-            addInt = model[history][rand() % model[history].size()];
+            vector<int> possibleFollowers = model[history];
+            addInt = possibleFollowers[rand() % possibleFollowers.size()];
         }
         //Add it to the result
         seed.push_back(addInt);
