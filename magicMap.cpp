@@ -1,7 +1,5 @@
 #include "magicMap.h"
 
-#define FUZZ_MULTIPLE 3000
-
 int inline MagicMap::vectorHashNumber (vector<int> &key) {
     int hashNumber = 1;
     for (size_t i = 0; i < key.size(); i++) {
@@ -18,7 +16,7 @@ void fuzzVector(vector<int> &key,int fuzzMultiple) {
 }
 
 vector<int> &MagicMap::operator[] (vector<int> &key) {
-    fuzzVector(key,FUZZ_MULTIPLE);
+    fuzzVector(key,fuzzMultiple);
     int hashNumber = vectorHashNumber(key);
     vector<vector<int> > *keys = &hash[hashNumber];
     vector<vector<int> > *values = &hashValues[hashNumber];
@@ -41,7 +39,7 @@ vector<int> &MagicMap::get(vector<int> &seed, int order) {
     for (size_t i = seed.size()-order; i < seed.size(); i++) {
         key.push_back(seed[i]);
     }
-    fuzzVector(key,FUZZ_MULTIPLE);
+    fuzzVector(key,fuzzMultiple);
     int hashNumber = vectorHashNumber(key);
     vector<vector<int> > *keys = &hash[hashNumber];
     vector<vector<int> > *values = &hashValues[hashNumber];

@@ -9,10 +9,12 @@ class MagicMap {
     vector<vector<vector<int> > > hash;
     vector<vector<vector<int> > > hashValues;
     float tolerance;
+    int fuzzMultiple;
     bool calculateDeviation(vector<int> &a, vector<int> &b);
 
 public:
-    MagicMap(float atolerance) {
+    MagicMap(float atolerance,int fuzz) {
+        fuzzMultiple = fuzz;
         tolerance = atolerance;
         hash.reserve(10000);
         for (int i = 0; i < 10000; i++) {

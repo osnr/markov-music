@@ -18,7 +18,8 @@ int main(int argc, char **argv) {
             readSamplesFromWAV(v, argv[i]);
             inputs.push_back(v);
         }
-        markovGeneration(inputs,"out.wav",3,250000,10000000);
+        //order, input file size, output file size, fuzz factor, unify inputs into single graph
+        markovGeneration(inputs,"out.wav",4,250000,10000000,500000,true);
     }
 
 }

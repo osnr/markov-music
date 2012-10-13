@@ -52,8 +52,8 @@ void printResults(vector<int> *output) {
     printf("\n");
 }
 
-MagicMap buildModel(vector<int> input, int order, int inputSizeLimit) {
-    MagicMap model(0);
+MagicMap buildModel(vector<int> input, int order, int inputSizeLimit, int fuzzMultiple) {
+    MagicMap model(0,fuzzMultiple);
     vector<int> history;
 
     int inputSize = input.size();
@@ -83,15 +83,31 @@ MagicMap buildModel(vector<int> input, int order, int inputSizeLimit) {
     return model;
 }
 
-void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize) {
-    vector<MagicMap> models;
-    
-    for (int i = 0; i < inputs.size(); i++) {
-        models.push_back(buildModel(inputs[i],order,inputSizeLimit));
-    }
+void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize, int fuzzMultiple, bool unify) {
 
+    vector<MagicMap> models;
     int modelIndex = 0;
-    MagicMap model = models[modelIndex];
+
+    MagicMap model(0,fuzzMultiple);
+
+    if (!unify) {
+        for (int i = 0; i < inputs.size(); i++) {
+            models.push_back(buildModel(inputs[i],order,inputSizeLimit,fuzzMultiple));
+        }
+
+        model = models[modelIndex];
+    }
+    else {
+        vector<int> unified;
+        for (int i = 0; i < inputs.size(); i++) {
+            int inputSize = inputs[i].size();
+            if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
+            for (int j = 0; j < inputSize; j++) {
+                unified.push_back(inputs[i][j]);
+            }
+        }
+        model = buildModel(unified,order,unified.size(),fuzzMultiple);
+    }
     //Get starting seed
     vector<int> startFlag = model.getLargestKey();
     vector<int> seed = startFlag;
@@ -131,15 +147,16 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
         }
         else {
             //Start over if we hit a loop
-            /*modelIndex++;
-            if (modelIndex >= models.size()) {
-                modelIndex = 0;
-            }*/
-            modelIndex = rand() % models.size();
-            printf("\nRAN OUT OF POSSIBILITIES, new song %i\n",modelIndex);
-            model = models[modelIndex];
-            //startFlag = model.getLargestKey();
-            startFlag = model.getMostSimilarKey(seed,order);
+            if (!unify) {
+                modelIndex = rand() % models.size();
+                printf("\nRAN OUT OF POSSIBILITIES, new song %i\n",modelIndex);
+                model = models[modelIndex];
+                startFlag = model.getMostSimilarKey(seed,order);
+            }
+            else {
+                printf("\nRAN OUT OF POSSIBILITIES\n");
+                startFlag = model.getMostSimilarKey(seed,order);
+            }
             for (int i = 0; i < startFlag.size(); i++) {
                 seed.push_back(startFlag[i]);
             }
