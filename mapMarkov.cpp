@@ -58,7 +58,10 @@ void markovGeneration(char* inFile, char* outFile, int order, int outputSize) {
         if (i < 100) {
             cout << input->at(i) << ",";
         }
-        if (i % 1000 == 0) cout << ".";
+        if (i % 1000 == 0) {
+            cout << ".";
+            fflush(stdout);
+        }
         if (history.size() >= order) {
             model[history].push_back(input->at(i));
             //Check for the seed value
@@ -88,7 +91,10 @@ void markovGeneration(char* inFile, char* outFile, int order, int outputSize) {
 
     //Do the generation
     for (int i = 0; i < outputSize; i++) {
-        if (i % 1000 == 0) cout << ".";
+        if (i % 1000 == 0) {
+            cout << ".";
+            fflush(stdout);
+        }
         //Get a random int from the options to follow this history set
         int addInt = model[history][rand() % model[history].size()];
         if (i < 100) {
