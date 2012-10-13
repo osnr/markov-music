@@ -5,9 +5,15 @@
 #include <iostream>
 #include <vector>
 
-#define ORDER 100
-#define FOLLOW 10
-#define LENIENCY 100
+#define ORDER 2
+#define FOLLOW 1
+#define LENIENCY 0
+
+#define SIZE 50
+
+/* #define ORDER 100 */
+/* #define FOLLOW 10 */
+/* #define LENIENCY 100 */
 
 using namespace std;
 
