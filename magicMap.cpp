@@ -1,6 +1,6 @@
 #include "magicMap.h"
 
-#define FUZZ_MULTIPLE 10000
+#define FUZZ_MULTIPLE 1000000
 
 int inline MagicMap::vectorHashNumber (vector<int> &key) {
     int hashNumber = 1;
@@ -52,14 +52,7 @@ vector<int> &MagicMap::get(vector<int> &seed, int order) {
     }
 
     printf("\nRAN OUT OF POSSIBILITIES\n");
-    // If we got here, nothing was found
-    /*printf("\nCouldn't find a match for set size %i: ",key.size());
-    for (int i = 0; i < key.size(); i++) {
-        printf("%i,",key[i]);
-    }
-    printf("\n");*/
     fflush(stdout);
-    exit(1);
 
     vector<int> v;
     return v;
