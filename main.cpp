@@ -1,4 +1,4 @@
-#include "readWAV.h"
+#include "WAVio.h"
 #include <iostream>
 
 

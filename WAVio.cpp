@@ -1,5 +1,5 @@
 #include <sndfile.h>
-#include "readWAV.h"
+#include "WAVio.h"
 
 
 #define SAMPLES 8192 // how many samples to read at a time from the file

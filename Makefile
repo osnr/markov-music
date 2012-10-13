@@ -1,6 +1,6 @@
 COPT=-g
 LOPT=-g -lsndfile
-OBJS=main.o readWAV.o markov.o
+OBJS=main.o WAVio.o markov.o
 CC=g++
 
 default: markov-music

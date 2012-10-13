@@ -1,5 +1,5 @@
-#ifndef READWAV_H
-#define READWAV_H
+#ifndef WAVIO_H
+#define WAVIO_H
 
 #include <vector>
 
