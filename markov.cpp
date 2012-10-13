@@ -86,42 +86,7 @@ void generateSequence(vector<progression*>* progs, vector<int>& sequence) {
   }
 }
 
-int markov ()
-{
-  //vector<int> *samples = readSamplesFromWAV("samples.wav");
-  vector<int> *samples = new vector<int>;
-  samples->push_back(1);
-  samples->push_back(2);
-  samples->push_back(3);
-  samples->push_back(2);
-  samples->push_back(1);
-  samples->push_back(2);
-  samples->push_back(3);
-  samples->push_back(2);
-  samples->push_back(2);
-  samples->push_back(2);
-  samples->push_back(2);
-  samples->push_back(2);
-  samples->push_back(1);
-  samples->push_back(2);
-  samples->push_back(3);
-  samples->push_back(2);
-  samples->push_back(1);
-  samples->push_back(2);
-  samples->push_back(3);
-  samples->push_back(2);
-  samples->push_back(1);
-  samples->push_back(2);
-  samples->push_back(3);
-  samples->push_back(2);
-  samples->push_back(1);
-  samples->push_back(2);
-  samples->push_back(3);
-  samples->push_back(2);
-
-  vector<progression*> *progs = new vector<progression*>;
-
-  initMarkovModel(samples, progs);
+void debugProgs(vector<progression*>* progs) {
 
   for (int i = 0; i < progs->size(); i++) {
     progression* p = progs->at(i);
@@ -140,13 +105,56 @@ int markov ()
     }
   }
 
+}
+
+int markov ()
+{
+  vector<int> *samples = readSamplesFromWAV("audiosamples/Music/Dubstep 140.wav");
+  // vector<int> *samples = new vector<int>;
+  // samples->push_back(1);
+  // samples->push_back(2);
+  // samples->push_back(3);
+  // samples->push_back(2);
+  // samples->push_back(1);
+  // samples->push_back(2);
+  // samples->push_back(3);
+  // samples->push_back(2);
+  // samples->push_back(2);
+  // samples->push_back(2);
+  // samples->push_back(2);
+  // samples->push_back(2);
+  // samples->push_back(1);
+  // samples->push_back(2);
+  // samples->push_back(3);
+  // samples->push_back(2);
+  // samples->push_back(1);
+  // samples->push_back(2);
+  // samples->push_back(3);
+  // samples->push_back(2);
+  // samples->push_back(1);
+  // samples->push_back(2);
+  // samples->push_back(3);
+  // samples->push_back(2);
+  // samples->push_back(1);
+  // samples->push_back(2);
+  // samples->push_back(3);
+  // samples->push_back(2);
+
+  vector<progression*> *progs = new vector<progression*>;
+
+  initMarkovModel(samples, progs);
+
+  //debugProgs(progs);
+
   vector<int> sequence;
   generateSequence(progs, sequence);
 
-  cout << "Sequence: ";
-  for (int i = 0; i < sequence.size(); i++) {
-    cout << sequence[i] << ",";
-  }
-  cout << endl;
+  // cout << "Sequence: ";
+  // for (int i = 0; i < sequence.size(); i++) {
+  //   cout << sequence[i] << ",";
+  // }
+  // cout << endl;
+
+  writeSamplesToWAV(&sequence, "output.wav");
   return 0;
 }
