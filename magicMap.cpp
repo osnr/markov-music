@@ -1,59 +1,88 @@
 #include "magicMap.h"
 
+#define FUZZMULTIPLE 10000
 
-vector<int> &MagicMap::operator[] (vector<int> &key) {
+int inline MagicMap::vectorHashNumber (vector<int> &key) {
     int hashNumber = 1;
-    int fuzzMultiple = 2000;
-    //printf("Fuzzing Key: ");
     for (size_t i = 0; i < key.size(); i++) {
-        key[i] = ((int)((double)key[i]/fuzzMultiple))*fuzzMultiple;
-        //printf("%i-",key[i]);
         hashNumber += key[i];
         if (i % 3 == 0) {
             hashNumber = (hashNumber << 1);
         }
     }
-    //printf("\n");
-    hashNumber = hashNumber % hash.size();
+    return hashNumber % hash.size();
+}
+
+void fuzzVector(vector<int> &key,int fuzzMultiple) {
+    for (size_t i = 0; i < key.size(); i++) {
+        key[i] = ((int)((double)key[i]/fuzzMultiple))*fuzzMultiple;
+    }
+}
+
+vector<int> &MagicMap::operator[] (vector<int> &key) {
+    fuzzVector(key,FUZZ_MULTIPLE);
+    int hashNumber = vectorHashNumber(key);
     vector<vector<int> > *keys = &hash[hashNumber];
+    vector<vector<int> > *values = &hashValues[hashNumber];
     for (size_t i = 0; i < keys->size(); i++) {
         if (calculateDeviation(keys->at(i), key))
-            return values[i];
+            return values->at(i);
     }
 
     // If we got here, nothing was found, add key to keys
     vector<int> v;
     v.reserve(100);
     keys->push_back(key);
-    values.push_back(v);
-    return values.back();
+    values->push_back(v);
+    return values->back();
 }
 
 vector<int> &MagicMap::get(vector<int> &seed, int order) {
-    int hashNumber = 1;
-    int fuzzMultiple = 20000;
-    //printf("Fuzzing Key: ");
     vector<int> key;
-    key.reserve(seed.size());
+    key.reserve(order);
     for (size_t i = seed.size()-order; i < seed.size(); i++) {
-        key.push_back(((int)((double)seed[i]/fuzzMultiple))*fuzzMultiple);
-        //printf("%i-",key[i]);
-        hashNumber += key.back();
-        if (i % 3 == 0) {
-            hashNumber = (hashNumber << 1);
-        }
+        key.push_back(seed[i]);
     }
-    //printf("\n");
-    hashNumber = hashNumber % hash.size();
+    fuzzVector(key,FUZZ_MULTIPLE);
+    int hashNumber = vectorHashNumber(key);
     vector<vector<int> > *keys = &hash[hashNumber];
+    vector<vector<int> > *values = &hashValues[hashNumber];
+    //printf("Bucket Size %i\n",keys->size());
     for (size_t i = 0; i < keys->size(); i++) {
         if (calculateDeviation(keys->at(i), key))
-            return values[i];
+            return values->at(i);
     }
 
+    printf("\nRAN OUT OF POSSIBILITIES\n");
     // If we got here, nothing was found
+    /*printf("\nCouldn't find a match for set size %i: ",key.size());
+    for (int i = 0; i < key.size(); i++) {
+        printf("%i,",key[i]);
+    }
+    printf("\n");*/
+    fflush(stdout);
+    exit(1);
+
     vector<int> v;
     return v;
+}
+
+void MagicMap::debugModel() {
+    for (size_t h = 0; h < hash.size(); h++) {
+        vector<vector<int> > keys = hash[h];
+        vector<vector<int> > values = hashValues[h];
+        for (size_t i = 0; i < keys.size(); i++) {
+            printf("Key: ");
+            for (size_t k = 0; k < keys[i].size(); k++) {
+                printf("%i",keys[i][k]);
+            }
+            printf(": ");
+            for (size_t n = 0; n < values[i].size(); n++) {
+                printf("%i,",values[i][n]);
+            }
+            printf("\n");
+        }
+    }
 }
 
 vector<int> MagicMap::getLargestKey() {
@@ -63,6 +92,7 @@ vector<int> MagicMap::getLargestKey() {
     int largestResultIndex = 0;
     for (size_t h = 0; h < hash.size(); h++) {
         vector<vector<int> > keys = hash[h];
+        vector<vector<int> > values = hashValues[h];
         for (size_t i = 0; i < keys.size(); i++) {
             int valueSize = values[i].size();
             if (valueSize > largestResult) {
@@ -77,6 +107,15 @@ vector<int> MagicMap::getLargestKey() {
 
 
 bool MagicMap::calculateDeviation(vector<int> &a, vector<int> &b) {
+    /*printf("\nDeviation for sets size %i: ",a.size());
+    for (int i = 0; i < a.size(); i++) {
+        printf("%i,",a[i]);
+    }
+    printf("\n");
+    for (int i = 0; i < a.size(); i++) {
+        printf("%i,",b[i]);
+    }
+    printf("\n");*/
     for (size_t i = 0; i < a.size(); i++) {
         //Special case for zero
         if (a[i] != b[i]) return false;

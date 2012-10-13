@@ -41,6 +41,13 @@ vector<int> *getTestVector() {
     return samples;
 }
 
+void printResults(vector<int> *output) {
+    for (int i = 0; i < output->size(); i++) {
+        printf("%i,",output->at(i));
+    }
+    printf("\n");
+}
+
 void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit, int outputSize) {
     vector<int> *input = readSamplesFromWAV(inFile);
     //vector<int> *input = getTestVector();
@@ -51,7 +58,7 @@ void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit
     int inputSize = input->size();
     if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
 
-    cout << "Building Model of size " << inputSize << ": "<<endl;
+    cout << "Building Model of size " << inputSize << ": " << endl;
     //Build the model
     for (int i = 0; i < inputSize; i++) {
         if (i % 1000 == 0) {
@@ -73,24 +80,27 @@ void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit
 
     //Get starting seed
     vector<int> seed = model.getLargestKey();
-
-    seed.reserve(outputSize);
+    printf("\nStarting with set: ");
+    for (int i = 0; i < seed.size(); i++) {
+        printf("%i,",seed[i]);
+    }
 
     //free the input memory
     delete input;
-
-    //We're repurposing the history to do generation
-    history = seed;
 
     //Seed the random number generator
     srand( time(NULL));
 
     cout << endl << endl << "Generating Final Output of size " << outputSize << endl;
 
+    //model.debugModel();
+
     //Do the generation
     int zeroVectors = 0;
     int nonZeroVectors = 0;
     double avgSize = 0;
+    fflush(stdout);
+
     for (int i = 0; i < outputSize; i++) {
         if (i % 1000 == 0) {
             //printf("\r History size %i, iteration %i",history.size(), i);
@@ -116,6 +126,7 @@ void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit
     printf("\n avg vec size %f, non-zero vectors %i, zero-vectors %i",avgSize,nonZeroVectors,zeroVectors);
     cout << endl;
 
+    //printResults(&seed);
     writeSamplesToWAV(&seed,outFile);
 }
 
