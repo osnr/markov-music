@@ -40,6 +40,7 @@ std::vector<int> *readSamplesFromWAV(const char *fname) {
 
 
 bool writeSamplesToWAV(std::vector<int> *samples, const char *fname) {
+
     SF_INFO fileInfo;
     fileInfo.samplerate = SAMPLE_RATE;
     fileInfo.channels = 1;

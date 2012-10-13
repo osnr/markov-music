@@ -3,7 +3,7 @@
 
 vector<int> &MagicMap::operator[] (vector<int> &key) {
     for (size_t i = 0; i < keys.size(); i++) {
-        if (calculateDeviation(keys[i], key) < tolerance)
+        if (calculateDeviation(keys[i], key) <= tolerance)
             return values[i];
     }
 
