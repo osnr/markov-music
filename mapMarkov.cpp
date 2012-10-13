@@ -7,7 +7,7 @@
 #include <time.h>
 
 
-#define MODEL_FILE "magicModel.txt"
+#define MODEL_FILE "SavedMagicModel"
 
 
 using namespace std;
@@ -60,7 +60,7 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
     int inputSize = input.size();
     if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
 
-    if (!model.ReadFromFile(MODEL_FILE)) {
+    if (!model.ReadFromFile(MODEL_FILE, 0)) {
         cout << "Building Model of size " << inputSize << ": " << endl;
         //Build the model
         for (int i = 0; i < inputSize; i++) {
@@ -79,7 +79,7 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
             //Add to the history
             history.push_back(input.at(i));
         }
-        model.SaveToFile(MODEL_FILE);
+        model.SaveToFile(MODEL_FILE, 0);
     }
 
 
