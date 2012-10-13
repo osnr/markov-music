@@ -237,7 +237,7 @@ void markovGeneration(vector< vector<slice> > &inputs, vector<char *> &inputName
                 startFlag = model.getMostSimilarKey(seed,order);
             }
             else {
-                printf("\nRAN OUT OF POSSIBILITIES\n");
+                printf("\nRE-SEEDING\n");
                 startFlag = model.getMostSimilarKey(seed,order);
             }
             for (int i = 0; i < startFlag.size(); i++) {
