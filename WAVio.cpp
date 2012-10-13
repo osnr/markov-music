@@ -3,6 +3,7 @@
 
 
 #define SAMPLES 8192 // how many samples to read at a time from the file
+#define SAMPLE_RATE 44100 // for output WAV
 
 
 std::vector<int> *readSamplesFromWAV(const char *fname) {
@@ -33,5 +34,24 @@ std::vector<int> *readSamplesFromWAV(const char *fname) {
     }
 
     free(input);
+    sf_close(fr);
     return samples;
+}
+
+
+bool writeSamplesToWAV(std::vector<int> *samples, const char *fname) {
+    SF_INFO fileInfo;
+    fileInfo.samplerate = SAMPLE_RATE;
+    fileInfo.channels = 1;
+    fileInfo.format = SF_FORMAT_WAV;
+
+    SNDFILE *fw = sf_open(fname, SFM_WRITE, &fileInfo);
+    if (!fw) {
+        printf("can't open %s for writing\n", fname);
+        throw;
+    }
+
+    // the &samples->at(0) is a trick to basically convert the C++-style vector to a C-style array pointer
+    sf_writef_int(fw, &samples->at(0), samples->size());
+    sf_close(fw);
 }
