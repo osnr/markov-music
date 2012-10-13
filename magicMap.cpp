@@ -9,6 +9,7 @@ vector<int> &MagicMap::operator[] (vector<int> &key) {
 
     // If we got here, nothing was found, add key to keys
     vector<int> v;
+    keys.push_back(key);
     values.push_back(v);
     return values.back();
 }
