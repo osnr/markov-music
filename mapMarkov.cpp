@@ -48,14 +48,11 @@ void printResults(vector<int> *output) {
     printf("\n");
 }
 
-void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit, int outputSize) {
-    vector<int> *input = readSamplesFromWAV(inFile);
-    //vector<int> *input = getTestVector();
-        
+void markovGeneration(vector<int> &input, char* outFile, int order, int inputSizeLimit, int outputSize) {
     MagicMap model(0);
     vector<int> history;
 
-    int inputSize = input->size();
+    int inputSize = input.size();
     if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
 
     cout << "Building Model of size " << inputSize << ": " << endl;
@@ -66,7 +63,7 @@ void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit
             fflush(stdout);
         }
         if (history.size() >= order) {
-            model[history].push_back(input->at(i));
+            model[history].push_back(input.at(i));
             //Check for the seed value
             //TODO: This is slightly slower than the most frequent at the end, b/c of redundancies
 
@@ -74,7 +71,7 @@ void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit
             history.erase(history.begin());
         }
         //Add to the history
-        history.push_back(input->at(i));
+        history.push_back(input.at(i));
     }
 
 
@@ -84,9 +81,6 @@ void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit
     for (int i = 0; i < seed.size(); i++) {
         printf("%i,",seed[i]);
     }
-
-    //free the input memory
-    delete input;
 
     //Seed the random number generator
     srand( time(NULL));

@@ -109,7 +109,10 @@ void debugProgs(vector<progression*>* progs) {
 
 int markov ()
 {
-  vector<int> *samples = readSamplesFromWAV("audiosamples/Music/Dubstep 140.wav");
+    printf("markov() disabled!\n");
+    exit(1);
+  // vector<int> *samples = readSamplesFromWAV("audiosamples/Music/Dubstep 140.wav");
+    vector<int> *samples = NULL;
   // vector<int> *samples = new vector<int>;
   // samples->push_back(1);
   // samples->push_back(2);
