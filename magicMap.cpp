@@ -1,6 +1,6 @@
 #include "magicMap.h"
 
-#define FUZZ_MULTIPLE 1000000
+#define FUZZ_MULTIPLE 3000
 
 int inline MagicMap::vectorHashNumber (vector<int> &key) {
     int hashNumber = 1;
@@ -51,8 +51,6 @@ vector<int> &MagicMap::get(vector<int> &seed, int order) {
             return values->at(i);
     }
 
-    printf("\nRAN OUT OF POSSIBILITIES\n");
-    fflush(stdout);
 
     vector<int> v;
     return v;
@@ -96,17 +94,39 @@ vector<int> MagicMap::getLargestKey() {
     return hash[largestResultHash][largestResultIndex];
 }
 
+double MagicMap::calculateScore(vector<int> &a, vector<int> &b) {
+    double avgScore = 0;
+    for (size_t i = 0; i < a.size(); i++) {
+        avgScore += abs(a[i]-b[i]);
+    }
+    return avgScore / a.size();
+}
+
+vector<int> MagicMap::getMostSimilarKey(vector<int> &check, int order) {
+    vector<int> key;
+    for (int i = check.size() - order; i < check.size(); i++) {
+        key.push_back(check[i]);
+    }
+    double closestResult = 1000000;
+    int closestResultHash = 0;
+    int closestResultIndex = 0;
+    for (size_t h = 0; h < hash.size(); h++) {
+        vector<vector<int> > keys = hash[h];
+        vector<vector<int> > values = hashValues[h];
+        for (size_t i = 0; i < keys.size(); i++) {
+            int valueSize = calculateScore(values[i],key);
+            if (valueSize < closestResult) {
+                closestResult = valueSize;
+                closestResultHash = h;
+                closestResultIndex = i;
+            }
+        }
+    }
+    return hash[closestResultHash][closestResultIndex];
+}
+
 
 bool MagicMap::calculateDeviation(vector<int> &a, vector<int> &b) {
-    /*printf("\nDeviation for sets size %i: ",a.size());
-    for (int i = 0; i < a.size(); i++) {
-        printf("%i,",a[i]);
-    }
-    printf("\n");
-    for (int i = 0; i < a.size(); i++) {
-        printf("%i,",b[i]);
-    }
-    printf("\n");*/
     for (size_t i = 0; i < a.size(); i++) {
         //Special case for zero
         if (a[i] != b[i]) return false;

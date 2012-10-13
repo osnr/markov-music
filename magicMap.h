@@ -31,6 +31,8 @@ public:
     vector<int> &operator[] (vector<int> &key);
     vector<int> &get(vector<int> &seed, int order);
     vector<int> getLargestKey();
+    double calculateScore(vector<int> &a, vector<int> &b);
+    vector<int> getMostSimilarKey(vector<int> &check, int order);
     void debugModel();
     int inline vectorHashNumber (vector<int> &key);
 

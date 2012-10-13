@@ -52,8 +52,7 @@ void printResults(vector<int> *output) {
     printf("\n");
 }
 
-void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize) {
-    vector<int> input = inputs[0];
+MagicMap buildModel(vector<int> input, int order, int inputSizeLimit) {
     MagicMap model(0);
     vector<int> history;
 
@@ -81,8 +80,18 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
         }
         model.SaveToFile(MODEL_FILE, 0);
     }
+    return model;
+}
 
+void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize) {
+    vector<MagicMap> models;
+    
+    for (int i = 0; i < inputs.size(); i++) {
+        models.push_back(buildModel(inputs[i],order,inputSizeLimit));
+    }
 
+    int modelIndex = 0;
+    MagicMap model = models[modelIndex];
     //Get starting seed
     vector<int> startFlag = model.getLargestKey();
     vector<int> seed = startFlag;
@@ -122,6 +131,15 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
         }
         else {
             //Start over if we hit a loop
+            /*modelIndex++;
+            if (modelIndex >= models.size()) {
+                modelIndex = 0;
+            }*/
+            modelIndex = rand() % models.size();
+            printf("\nRAN OUT OF POSSIBILITIES, new song %i\n",modelIndex);
+            model = models[modelIndex];
+            //startFlag = model.getLargestKey();
+            startFlag = model.getMostSimilarKey(seed,order);
             for (int i = 0; i < startFlag.size(); i++) {
                 seed.push_back(startFlag[i]);
             }
