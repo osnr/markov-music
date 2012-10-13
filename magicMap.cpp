@@ -29,12 +29,9 @@ vector<int> MagicMap::getLargestKey() {
     int largestResult = 0;
     int largestResultHash = 0;
     int largestResultIndex = 0;
-    printf("Getting largest in hash size %i:\n",hash.size());
     for (size_t h = 0; h < hash.size(); h++) {
-        printf("Hash Bucket %i, size %i\n",h,hash[h].size());
         vector<vector<int> > keys = hash[h];
         for (size_t i = 0; i < keys.size(); i++) {
-            printf("Key %i\n",i);
             int valueSize = values[i].size();
             if (valueSize > largestResult) {
                 largestResult = valueSize;

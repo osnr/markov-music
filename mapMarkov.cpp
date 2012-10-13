@@ -63,10 +63,6 @@ void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit
             //Check for the seed value
             //TODO: This is slightly slower than the most frequent at the end, b/c of redundancies
 
-            /*if (model[history].size() > mostFrequentKeyCount) {
-                mostFrequentKeyCount = model[history].size();
-                seed = history;
-            }*/
             //Shift the history frame over 1 element
             history.erase(history.begin());
         }
@@ -78,6 +74,8 @@ void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit
     //Get starting seed
     vector<int> seed = model.getLargestKey();
 
+    seed.reserve(outputSize);
+
     //free the input memory
     delete input;
 
@@ -87,19 +85,19 @@ void markovGeneration(char* inFile, char* outFile, int order, int inputSizeLimit
     //Seed the random number generator
     srand( time(NULL));
 
-    cout << endl << endl << "Generating Final Output of size " << outputSize << " (one dot per 1000 outputs): " << endl;
+    cout << endl << endl << "Generating Final Output of size " << outputSize << endl;
 
     //Do the generation
     for (int i = 0; i < outputSize; i++) {
         if (i % 1000 == 0) {
-            printf("\r %i done (%i percent)",i,(int)(((double)i/(double)inputSize)*100));
+            printf("\r %i done (%i percent)",i,(int)(((double)i/(double)outputSize)*100));
             fflush(stdout);
         }
         //Get a random int from the options to follow this history set
         int addInt = 0;
-        if (model[history].size() > 0) {
-            vector<int> possibleFollowers = model[history];
-            addInt = possibleFollowers[rand() % possibleFollowers.size()];
+        vector<int> *possibleFollowers = &model[history];
+        if (possibleFollowers->size() > 0) {
+            addInt = possibleFollowers->at(rand() % possibleFollowers->size());
         }
         //Add it to the result
         seed.push_back(addInt);
