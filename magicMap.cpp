@@ -3,16 +3,21 @@
 
 vector<int> &MagicMap::operator[] (vector<int> &key) {
     int hashNumber = 1;
+    int fuzzMultiple = 2000;
+    //printf("Fuzzing Key: ");
     for (size_t i = 0; i < key.size(); i++) {
+        key[i] = ((int)((double)key[i]/fuzzMultiple))*fuzzMultiple;
+        //printf("%i-",key[i]);
         hashNumber += key[i];
         if (i % 3 == 0) {
             hashNumber = (hashNumber << 1);
         }
     }
+    //printf("\n");
     hashNumber = hashNumber % hash.size();
     vector<vector<int> > *keys = &hash[hashNumber];
     for (size_t i = 0; i < keys->size(); i++) {
-        if (calculateDeviation(keys->at(i), key) <= tolerance)
+        if (calculateDeviation(keys->at(i), key))
             return values[i];
     }
 
@@ -22,6 +27,33 @@ vector<int> &MagicMap::operator[] (vector<int> &key) {
     keys->push_back(key);
     values.push_back(v);
     return values.back();
+}
+
+vector<int> &MagicMap::get(vector<int> &seed, int order) {
+    int hashNumber = 1;
+    int fuzzMultiple = 20000;
+    //printf("Fuzzing Key: ");
+    vector<int> key;
+    key.reserve(seed.size());
+    for (size_t i = seed.size()-order; i < seed.size(); i++) {
+        key.push_back(((int)((double)seed[i]/fuzzMultiple))*fuzzMultiple);
+        //printf("%i-",key[i]);
+        hashNumber += key.back();
+        if (i % 3 == 0) {
+            hashNumber = (hashNumber << 1);
+        }
+    }
+    //printf("\n");
+    hashNumber = hashNumber % hash.size();
+    vector<vector<int> > *keys = &hash[hashNumber];
+    for (size_t i = 0; i < keys->size(); i++) {
+        if (calculateDeviation(keys->at(i), key))
+            return values[i];
+    }
+
+    // If we got here, nothing was found
+    vector<int> v;
+    return v;
 }
 
 vector<int> MagicMap::getLargestKey() {
@@ -44,18 +76,11 @@ vector<int> MagicMap::getLargestKey() {
 }
 
 
-float MagicMap::calculateDeviation(vector<int> &a, vector<int> &b) {
-    if (a.size() != b.size()) {
-        printf("keys don't have the same size (%i vs %i)\n", (int)a.size(), (int)b.size());
-        throw;
-    }
-
-    int totalDev = 0;
+bool MagicMap::calculateDeviation(vector<int> &a, vector<int> &b) {
     for (size_t i = 0; i < a.size(); i++) {
-        totalDev += abs(a[i] - b[i]);
         //Special case for zero
-        if (totalDev > 0) break;
+        if (a[i] != b[i]) return false;
     }
+    return true;
 
-    return (float)totalDev / (float)a.size();
 }

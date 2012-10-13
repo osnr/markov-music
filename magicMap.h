@@ -9,21 +9,22 @@ class MagicMap {
     vector<vector<vector<int> > > hash;
     vector< vector<int> > values;
     float tolerance;
-    float calculateDeviation(vector<int> &a, vector<int> &b);
+    bool calculateDeviation(vector<int> &a, vector<int> &b);
 
 public:
     MagicMap(float atolerance) {
         tolerance = atolerance;
-        hash.reserve(100);
+        hash.reserve(10000);
         for (int i = 0; i < 10000; i++) {
             vector<vector<int> > keys;
             keys.reserve(1000);
             hash.push_back(keys);
         }
-        values.reserve(100000);
+        values.reserve(10000000);
     };
     ~MagicMap() {};
     vector<int> &operator[] (vector<int> &key);
+    vector<int> &get(vector<int> &seed, int order);
     vector<int> getLargestKey();
 };
 
