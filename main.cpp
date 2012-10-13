@@ -1,4 +1,5 @@
 #include "readWAV.h"
+#include "markov.h"
 #include <iostream>
 
 
@@ -6,6 +7,6 @@ using namespace std;
 
 
 int main(int argc, char **argv) {
-    cout << "Hello Hackathon!" << endl;
+  markov();
     return 0;
 }
