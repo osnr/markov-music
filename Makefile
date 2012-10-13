@@ -1,5 +1,5 @@
-COPT=-g
-LOPT=-g -lsndfile
+COPT=-g -pg
+LOPT=-g -pg -lsndfile
 OBJS=main.o WAVio.o markov.o magicMap.o mapMarkov.o
 CC=g++
 
