@@ -110,7 +110,9 @@ void markovGeneration(vector<int> &input, char* outFile, int order, int inputSiz
             nonZeroVectors++;
         }
         else {
-            zeroVectors++;
+            //Quit flag
+            writeSamplesToWAV(&seed,outFile);
+            exit(0);
         }
         //Add it to the result
         seed.push_back(addInt);
