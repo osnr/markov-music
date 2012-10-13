@@ -43,7 +43,7 @@ bool writeSamplesToWAV(std::vector<int> *samples, const char *fname) {
     SF_INFO fileInfo;
     fileInfo.samplerate = SAMPLE_RATE;
     fileInfo.channels = 1;
-    fileInfo.format = SF_FORMAT_WAV;
+    fileInfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
 
     SNDFILE *fw = sf_open(fname, SFM_WRITE, &fileInfo);
     if (!fw) {
