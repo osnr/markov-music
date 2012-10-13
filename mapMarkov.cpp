@@ -52,14 +52,14 @@ void printResults(vector<int> *output) {
     printf("\n");
 }
 
-MagicMap buildModel(vector<int> input, int order, int inputSizeLimit, int fuzzMultiple) {
+MagicMap buildModel(vector<int> input, int order, int inputSizeLimit, int fuzzMultiple, int index) {
     MagicMap model(0,fuzzMultiple);
     vector<int> history;
 
     int inputSize = input.size();
     if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
 
-    if (!model.ReadFromFile(MODEL_FILE, 0)) {
+    if (!model.ReadFromFile(MODEL_FILE, index)) {
         cout << "Building Model of size " << inputSize << ": " << endl;
         //Build the model
         for (int i = 0; i < inputSize; i++) {
@@ -78,12 +78,12 @@ MagicMap buildModel(vector<int> input, int order, int inputSizeLimit, int fuzzMu
             //Add to the history
             history.push_back(input.at(i));
         }
-        model.SaveToFile(MODEL_FILE, 0);
+        model.SaveToFile(MODEL_FILE, index);
     }
     return model;
 }
 
-void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize, int fuzzMultiple, bool unify) {
+void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize, int fuzzMultiple, int beatLength, int beatModifierStrength, bool unify) {
 
     vector<MagicMap> models;
     int modelIndex = 0;
@@ -92,7 +92,7 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
 
     if (!unify) {
         for (int i = 0; i < inputs.size(); i++) {
-            models.push_back(buildModel(inputs[i],order,inputSizeLimit,fuzzMultiple));
+            models.push_back(buildModel(inputs[i],order,inputSizeLimit,fuzzMultiple,i));
         }
 
         model = models[modelIndex];
@@ -106,7 +106,7 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
                 unified.push_back(inputs[i][j]);
             }
         }
-        model = buildModel(unified,order,unified.size(),fuzzMultiple);
+        model = buildModel(unified,order,unified.size(),fuzzMultiple,0);
     }
     //Get starting seed
     vector<int> startFlag = model.getLargestKey();
@@ -129,6 +129,7 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
     double avgSize = 0;
     fflush(stdout);
 
+    int metronome = 0;
     for (int i = 0; i < outputSize; i++) {
         if (i % 1000 == 0) {
             //printf("\r History size %i, iteration %i",history.size(), i);
@@ -162,11 +163,24 @@ void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, i
             }
         }
     }
+    printf("\nPOST PROCESSING\n");
+    for (int i = 0; i < outputSize; i++) {
+        if (i % 1000 == 0) {
+            //printf("\r History size %i, iteration %i",history.size(), i);
+            printf("\r %i done (%i percent)",i,(int)(((double)i/(double)outputSize)*100));
+            fflush(stdout);
+        }
+        metronome++;
+        int beatModifier = metronome;
+        if (metronome > beatLength) metronome = beatLength - metronome;
+        if (metronome > beatLength * 2) metronome = 0;
+        seed[i] += beatModifier;
+    }
+    printf("DONE POST PROCESSING\n");
     avgSize /= (double)nonZeroVectors;
     printf("\n avg vec size %f, non-zero vectors %i, zero-vectors %i",avgSize,nonZeroVectors,zeroVectors);
     cout << endl;
 
-    //printResults(&seed);
     writeSamplesToWAV(&seed,outFile);
 }
 

@@ -19,7 +19,6 @@ int main(int argc, char **argv) {
             inputs.push_back(v);
         }
         //order, input file size, output file size, fuzz factor, unify inputs into single graph
-        markovGeneration(inputs,"out.wav",4,250000,10000000,500000,true);
+        markovGeneration(inputs,"out.wav",4,250000,10000000,500000,22000,0,false);
     }
-
 }
