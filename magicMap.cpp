@@ -150,22 +150,22 @@ bool MagicMap::ReadFromFile(const char *dir, int i) {
         if (line[strlen(line)-1] == '\n')
             line[strlen(line)-1] = '\0';
 
-        if (strcmp(line, "hash-1")==0) {
+        if (strcmp(line, "1")==0) {
             vector<vector<int > > v;
             hash.push_back(v);
-        } else if (strcmp(line, "hash-2")==0) {
+        } else if (strcmp(line, "2")==0) {
             vector<int> v;
             hash.back().push_back(v);
-        } else if (strstr(line, "hash-3 ") == line) {
-            hash.back().back().push_back(atoi(line + strlen("hash-3 ")));
-        } else if (strcmp(line, "hashValues-1")==0) {
+        } else if (strstr(line, "3 ") == line) {
+            hash.back().back().push_back(atoi(line + strlen("3 ")));
+        } else if (strcmp(line, "4")==0) {
             vector<vector<int > > v;
             hashValues.push_back(v);
-        } else if (strcmp(line, "hashValues-2")==0) {
+        } else if (strcmp(line, "5")==0) {
             vector<int> v;
             hashValues.back().push_back(v);
-        } else if (strstr(line, "hashValues-3 ") == line) {
-            hashValues.back().back().push_back(atoi(line + strlen("hashValues-3 ")));
+        } else if (strstr(line, "6 ") == line) {
+            hashValues.back().back().push_back(atoi(line + strlen("6 ")));
         }
     }
     
@@ -187,21 +187,21 @@ void MagicMap::SaveToFile(const char *dir, int i) {
     printf("hash size %i\n", hash.size());
 
     for (size_t i = 0; i < hash.size(); i++) {
-        fprintf(fw, "hash-1\n");
+        fprintf(fw, "1\n");
         for (size_t j = 0; j < hash[i].size(); j++) {
-            fprintf(fw, "hash-2\n");
+            fprintf(fw, "2\n");
             for (size_t k = 0; k < hash[i][j].size(); k++) {
-                fprintf(fw, "hash-3 %i\n", hash[i][j][k]);
+                fprintf(fw, "3 %i\n", hash[i][j][k]);
             }
         }
     }
 
     for (size_t i = 0; i < hashValues.size(); i++) {
-        fprintf(fw, "hashValues-1\n");
+        fprintf(fw, "4\n");
         for (size_t j = 0; j < hashValues[i].size(); j++) {
-            fprintf(fw, "hashValues-2\n");
+            fprintf(fw, "5\n");
             for (size_t k = 0; k < hashValues[i][j].size(); k++) {
-                fprintf(fw, "hashValues-3 %i\n", hashValues[i][j][k]);
+                fprintf(fw, "6 %i\n", hashValues[i][j][k]);
             }
         }
     }
