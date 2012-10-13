@@ -23,7 +23,7 @@
 }
 
 - (void)play:(id)sender {
-    system("mplayer /Users/jan/devel/markov-music/out.wav");
+    system("mplayer /Users/jan/devel/markov-music/out.wav &> /dev/null&");
 }
 
 - (void)run:(id)sender {
