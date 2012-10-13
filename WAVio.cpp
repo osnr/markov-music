@@ -26,8 +26,8 @@ std::vector<int> *readSamplesFromWAV(const char *fname) {
             if (fileInfo.channels == 1) {
                 samples->push_back(input[i]);
             } else if (fileInfo.channels == 2) {
-                // push back an average of left/right channels (ie mono)
-                int sampleToAdd = (int)((input[2*i] + input[2*i+1]) / 2.0);
+                // push back left channel only (averaging both loses precision)
+                int sampleToAdd = input[2*i];
                 if (sampleToAdd == 0 && soundStarted || sampleToAdd != 0) {
                     soundStarted = true;
                     samples->push_back(sampleToAdd);
