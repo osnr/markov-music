@@ -17,6 +17,7 @@ public:
     };
     ~MagicMap() {};
     vector<int> &operator[] (vector<int> &key);
+    vector<int> getLargestKey();
 };
 
 #endif
