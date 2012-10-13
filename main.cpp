@@ -14,6 +14,7 @@ int main(int argc, char **argv) {
         return 1;
     } else {
         vector<vector<slice> > inputs;
+        vector<char *> inputNames;
         int inSize = atoi(argv[1]);
         int outSize = atoi(argv[2]);
         int fuzzFactor = atoi(argv[3]);
@@ -27,6 +28,6 @@ int main(int argc, char **argv) {
         }
 
         //order, input file size, output file size, fuzz factor, unify inputs into single graph
-        markovGeneration(inputs,"out.wav",order,inSize,outSize,fuzzFactor,22000,0,unified==1);
+        markovGeneration(inputs,inputNames,"out.wav",order,inSize,outSize,fuzzFactor,22000,0,unified==1);
     }
 }

@@ -52,7 +52,7 @@ void printResults(vector<int> *output) {
     printf("\n");
 }
 
-MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzzMultiple, int index) {
+MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzzMultiple, const char *inputName, int index) {
     
     int inputSize = input.size();
     if (inputSize > inputSizeLimit) inputSize = inputSizeLimit;
@@ -115,7 +115,7 @@ MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzz
     vector<slice> history;
 
 
-    //if (!model.ReadFromFile(MODEL_FILE, index)) {
+    //if (!model.ReadFromFile(MODEL_FILE, inputName)) {
         cout << "Building Model of size " << inputSize << ": " << endl;
         //Build the model
         int beatPositionIndex = 0;
@@ -149,7 +149,7 @@ MagicMap buildModel(vector<slice> input, int order, int inputSizeLimit, int fuzz
             //Add to the history
             history.push_back(input.at(i));
         }
-        model.SaveToFile(MODEL_FILE, index);
+        model.SaveToFile(MODEL_FILE, inputName);
     //}
     return model;
 }
