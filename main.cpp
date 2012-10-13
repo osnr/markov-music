@@ -1,5 +1,5 @@
 #include "WAVio.h"
-#include "markov.h"
+
 #include "mapMarkov.h"
 #include "magicMap.h"
 
@@ -10,7 +10,15 @@ using namespace std;
 int main(int argc, char **argv) {
 
     if (argc == 1) {
-        printf("Usage: %s WAV1 ... WAVN\n\tWAVX are WAV files to read from.\n", argv[0]);
+        cout << "Usage: " << argv[0] << " insize outsize strictness order unify WAV1 ... WAVN" << endl;
+
+        cout << "\tinsize is the number of words from the start of each file on which to train the model." << endl;
+        cout << "\toutsize is the number of words to generate in the output." << endl;
+        cout << "\tstrictness determines the strictness of sequence matching (higher -> stricter)." << endl;
+        cout << "\torder is the number of words used to predict the next word in the model." << endl;
+        cout << "\tunify (0 or 1) determines whether to build a single model or switch between per-song models." << endl;
+        cout << "\tWAV1 ... WAVN are WAV files to read from." << endl;
+        
         return 1;
     } else {
         vector<vector<slice> > inputs;

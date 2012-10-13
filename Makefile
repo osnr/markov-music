@@ -1,6 +1,6 @@
 COPT=-g -O3 
 LOPT=-g -O3 -lsndfile
-OBJS=main.o WAVio.o markov.o magicMap.o mapMarkov.o
+OBJS=main.o WAVio.o magicMap.o mapMarkov.o
 CC=g++
 
 default: markov-music
