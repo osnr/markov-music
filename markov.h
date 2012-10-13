@@ -4,6 +4,6 @@
 
 #include <iostream>
 
-int main();
+int markov();
 
 #endif
