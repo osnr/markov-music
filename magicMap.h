@@ -38,8 +38,8 @@ public:
     void debugModel();
     int inline vectorHashNumber (vector<int> &key);
 
-    bool ReadFromFile(const char *fname, int i);
-    void SaveToFile(const char *fname, int i);
+    bool ReadFromFile(const char *fname, const char *name);
+    void SaveToFile(const char *fname, const char *name);
 };
 
 #endif

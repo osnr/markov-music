@@ -7,6 +7,5 @@
 
 using namespace std;
 
-void markovGeneration(vector< vector<int> > &inputs, char* outFile, int order, int inputSizeLimit, int outputSize, int fuzzMultiple, int beatLength, int beatModifierStrength, bool unify);
-
+void markovGeneration(vector< vector<int> > &inputs, vector<char *> &inputNames, char* outFile, int order, int inputSizeLimit, int outputSize, int fuzzMultiple, int beatLength, int beatModifierStrength, bool unify);
 #endif

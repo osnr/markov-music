@@ -13,12 +13,14 @@ int main(int argc, char **argv) {
         return 1;
     } else {
         vector<vector<int> > inputs;
+        vector<char *> inputNames;
         for (int i = 1; i < argc; i++) {
             vector<int> v;
             readSamplesFromWAV(v, argv[i]);
             inputs.push_back(v);
+            inputNames.push_back(argv[i]);
         }
         //order, input file size, output file size, fuzz factor, unify inputs into single graph
-        markovGeneration(inputs,"out.wav",4,250000,10000000,500000,22000,0,false);
+        markovGeneration(inputs,inputNames,"out.wav",4,250000,10000000,500000,22000,0,false);
     }
 }

@@ -134,9 +134,24 @@ bool MagicMap::calculateDeviation(vector<int> &a, vector<int> &b) {
 }
 
 
-bool MagicMap::ReadFromFile(const char *dir, int i) {
-    char buf[512];// todo this could overflow if i is really high
-    sprintf(buf, "%s/%i.magic", dir, i);
+void strchrreplace(char *buf, char o, char n) {
+    bool first = true;
+    while (*buf != 0) {
+        if (*buf == o) {
+            if (first)
+                first = false;
+            else
+                *buf = n;
+        }
+        buf++;
+    }
+}
+
+
+bool MagicMap::ReadFromFile(const char *dir, const char *name) {
+    char *buf = (char *)malloc(strlen(".magic") + strlen(dir) + 1 + strlen(name) + 1);
+    sprintf(buf, "%s/%s.magic", dir, name);
+    strchrreplace(buf, '/', '-');
     FILE *fr = fopen(buf, "r");
     if (!fr) {
         return false;
@@ -171,13 +186,15 @@ bool MagicMap::ReadFromFile(const char *dir, int i) {
     
     fclose(fr);
     printf("Read MagicMap from %s\n", buf);
+    free(buf);
     return true;
 }
 
 
-void MagicMap::SaveToFile(const char *dir, int i) {
-    char buf[512];// todo this could overflow if i is really high
-    sprintf(buf, "%s/%i.magic", dir, i);
+void MagicMap::SaveToFile(const char *dir, const char *name) {
+    char *buf = (char *)malloc(strlen(".magic") + strlen(dir) + 1 + strlen(name) + 1);
+    sprintf(buf, "%s/%s.magic", dir, name);
+    strchrreplace(buf, '/', '-');
     FILE *fw = fopen(buf, "w");
     if (!fw) {
         printf("error: can't open %s for writing\n", buf);
@@ -208,4 +225,5 @@ void MagicMap::SaveToFile(const char *dir, int i) {
 
     fclose(fw);
     printf("Saved MagicMap to %s\n", buf);
+    free(buf);
 }
