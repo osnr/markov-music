@@ -1,7 +1,8 @@
 #include "readWAV.h"
+#include <iostream>
 
 
 int main(int argc, char **argv) {
-    printf("Hello Hackathon!\n");
+    cout << "Hello Hackathon!" << endl;
     return 0;
 }
